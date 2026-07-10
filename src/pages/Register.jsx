@@ -23,7 +23,7 @@ export default function Register() {
       setError(typeof result.error === 'string' ? result.error : JSON.stringify(result.error));
       setLoading(false);
     }
-    else { alert('Berhasil! Silakan cek email untuk verifikasi, lalu login.'); navigate('/login'); }
+    else { alert('Pendaftaran berhasil!'); navigate('/'); }
   }
 
   return (
@@ -36,7 +36,7 @@ export default function Register() {
       <form onSubmit={handleSubmit}>
         {error && <div className="toast error" style={{position:'relative',top:0,transform:'none',marginBottom:16}}>{error}</div>}
         <div className="form-group">
-          <label>Nama Lengkap</label>
+          <label>Nama Panggilan</label>
           <input type="text" placeholder="Nama kamu" value={nama} onChange={e => setNama(e.target.value)} />
         </div>
         <div className="form-group">

@@ -17,6 +17,10 @@ export default function Home() {
   const totals = useMemo(() => calculateTotals(myBalances), [myBalances]);
   const unpaidCount = transactions.filter(t => t.status === 'belum_lunas').length;
 
+  if (loading && groups.length === 0) {
+    return <div className="page"><div className="empty-state">Memuat data...</div></div>;
+  }
+
   if (groups.length === 0 && !loading) {
     return (
       <div className="page">
