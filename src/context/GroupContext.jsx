@@ -25,7 +25,8 @@ export function GroupProvider({ children }) {
     const kode = generateInviteCode();
     const { data, error } = await supabase.from('groups').insert({ nama, kode_undangan: kode, dibuat_oleh: userId }).select().single();
     if (error) return { error: error.message };
-    await supabase.from('group_members').insert({ group_id: data.id, user_id: userId });
+    const { error: joinError } = await supabase.from('group_members').insert({ group_id: data.id, user_id: userId });
+    if (joinError) return { error: joinError.message };
     setGroups(prev => [data, ...prev]);
     return { group: data };
   }, []);

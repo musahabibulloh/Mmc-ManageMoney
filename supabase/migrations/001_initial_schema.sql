@@ -82,11 +82,7 @@ ALTER TABLE group_members ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users can view members of their groups"
   ON group_members FOR SELECT TO authenticated
-  USING (
-    group_id IN (
-      SELECT gm.group_id FROM group_members gm WHERE gm.user_id = auth.uid()
-    )
-  );
+  USING (true);
 
 CREATE POLICY "Users can join groups"
   ON group_members FOR INSERT TO authenticated
