@@ -43,7 +43,7 @@ body {
 }
 
 .app-container {
-  max-width: 480px;
+  max-width: 1000px;
   margin: 0 auto;
   min-height: 100dvh;
   position: relative;
@@ -65,7 +65,7 @@ body {
 /* ========== BOTTOM NAV ========== */
 .bottom-nav {
   position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-  width: 100%; max-width: 480px;
+  width: 100%; max-width: 1000px;
   background: var(--surface); border-top: 1px solid var(--border);
   display: flex; height: 65px; z-index: 100;
   padding-bottom: env(safe-area-inset-bottom, 0);
@@ -87,7 +87,10 @@ body {
 /* ========== AUTH PAGES ========== */
 .auth-page {
   min-height: 100dvh; display: flex; flex-direction: column;
-  justify-content: center; padding: 24px;
+  justify-content: center; align-items: center; padding: 24px;
+}
+.auth-page form, .auth-page .auth-header, .auth-page .auth-footer {
+  width: 100%; max-width: 400px;
 }
 .auth-header { text-align: center; margin-bottom: 40px; }
 .auth-header .logo { font-size: 56px; margin-bottom: 12px; }
@@ -253,7 +256,7 @@ body {
 /* TX Actions Modal */
 .tx-actions {
   position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-  width: 100%; max-width: 480px; background: var(--surface-elevated);
+  width: 100%; max-width: 1000px; background: var(--surface-elevated);
   border-top-left-radius: 20px; border-top-right-radius: 20px;
   padding: 20px; z-index: 200; animation: slideUp 0.2s ease;
 }
@@ -353,7 +356,7 @@ body {
 
 /* ========== FAB ========== */
 .fab {
-  position: fixed; bottom: 85px; right: calc(50% - 210px);
+  position: fixed; bottom: 85px; right: 20px;
   width: 56px; height: 56px; border-radius: 28px;
   background: var(--primary); color: #fff; border: none;
   font-size: 28px; cursor: pointer; display: flex;
@@ -385,4 +388,17 @@ body {
 /* Responsive */
 @media (max-width: 480px) {
   .fab { right: 20px; }
+}
+
+@media (min-width: 768px) {
+  .app-container { padding-bottom: 20px; padding-top: 70px; }
+  .bottom-nav { 
+    top: 0; bottom: auto; border-top: none; border-bottom: 1px solid var(--border);
+    max-width: 100%;
+  }
+  .bottom-nav a { flex-direction: row; font-size: 14px; gap: 8px; }
+  .bottom-nav a .nav-icon { width: 32px; height: 32px; font-size: 18px; }
+  .fab { bottom: 30px; right: 30px; }
+  .stats-row, .summary-row, .quick-actions { gap: 20px; }
+  .tx-actions { max-width: 600px; border-radius: 20px; bottom: 20px; }
 }
