@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useGroup } from '../context/GroupContext';
@@ -82,7 +83,7 @@ export default function Transactions() {
       )}
 
       {/* Action Sheet */}
-      {actionTx && (
+      {actionTx && createPortal(
         <>
           <div className="overlay" onClick={() => setActionTx(null)} />
           <div className="tx-actions">
@@ -90,7 +91,8 @@ export default function Transactions() {
             <button className="btn btn-danger" onClick={() => handleDelete(actionTx.id)}>🗑️ Hapus Transaksi</button>
             <button className="btn btn-secondary" onClick={() => setActionTx(null)}>Batal</button>
           </div>
-        </>
+        </>,
+        document.body
       )}
 
       <Link to="/add-transaction"><button className="fab">+</button></Link>

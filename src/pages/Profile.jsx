@@ -21,7 +21,7 @@ export default function Profile() {
         <div className="profile-avatar">{profile?.nama?.charAt(0)?.toUpperCase() || '?'}</div>
         {editing ? (
           <div style={{display:'flex',gap:8,justifyContent:'center',alignItems:'center'}}>
-            <input style={{background:'var(--surface-elevated)',border:'1px solid var(--primary)',borderRadius:8,padding:10,color:'var(--text)',fontSize:16,flex:1,fontFamily:'inherit'}}
+            <input style={{background:'var(--surface-elevated)',border:'1px solid var(--primary)',borderRadius:8,padding:10,color:'var(--text-primary)',fontSize:16,flex:1,fontFamily:'inherit'}}
               value={newName} onChange={e => setNewName(e.target.value)} autoFocus />
             <button className="btn btn-primary" style={{width:'auto',padding:'10px 16px'}} onClick={handleSave}>✓</button>
           </div>

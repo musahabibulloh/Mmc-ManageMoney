@@ -1,4 +1,5 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useGroup } from '../context/GroupContext';
@@ -6,8 +7,9 @@ import { calculatePairBalances, calculateNetBalanceForUser, calculateTotals, for
 
 export default function Home() {
   const { session, profile } = useAuth();
-  const { currentGroup, groups, members, transactions, fetchGroups, selectGroup, loading } = useGroup();
+  const { currentGroup, groups, members, transactions, fetchGroups, selectGroup, loading, markMultipleAsPaid } = useGroup();
   const userId = session?.user?.id;
+  const [selectedDetailUser, setSelectedDetailUser] = useState(null);
 
   useEffect(() => { if (userId) fetchGroups(userId); }, [userId]);
   useEffect(() => { if (!currentGroup && groups.length > 0) selectGroup(groups[0]); }, [groups, currentGroup]);
@@ -85,7 +87,7 @@ export default function Home() {
 
       <div className="net-card" style={{
         background: totals.net >= 0 ? 'var(--success-bg)' : 'var(--danger-bg)',
-        borderColor: totals.net >= 0 ? 'rgba(0,184,148,0.3)' : 'rgba(255,107,107,0.3)',
+        borderColor: totals.net >= 0 ? 'var(--success)' : 'var(--danger)',
       }}>
         <div className="label" style={{color: totals.net >= 0 ? 'var(--success)' : 'var(--danger)'}}>
           {totals.net >= 0 ? '✨ Net Positif' : '⚠️ Net Negatif'}
@@ -98,11 +100,11 @@ export default function Home() {
       {/* Detail per Orang */}
       {myBalances.length > 0 && (
         <div className="card detail-section">
-          <h3>Detail per Orang</h3>
+          <h3>Detail per Orang <span style={{fontSize:12, fontWeight:'normal', color:'var(--text-tertiary)'}}>(ketuk untuk rincian)</span></h3>
           {myBalances.map(b => (
-            <div key={b.userId} className="detail-row">
+            <div key={b.userId} className="detail-row" style={{cursor: 'pointer'}} onClick={() => setSelectedDetailUser(b)}>
               <div className="detail-left">
-                <div className="detail-avatar" style={{background: b.amount >= 0 ? 'var(--success-bg)' : 'var(--danger-bg)'}}>
+                <div className="detail-avatar" style={{background: b.amount >= 0 ? 'var(--success-gradient)' : 'var(--danger-gradient)'}}>
                   {b.userName.charAt(0).toUpperCase()}
                 </div>
                 <div>
@@ -142,6 +144,64 @@ export default function Home() {
           <div className="code">{currentGroup.kode_undangan}</div>
           <div className="hint">Ketuk untuk bagikan / salin</div>
         </div>
+      )}
+
+      {/* Modal Detail Perhitungan Mutual */}
+      {selectedDetailUser && createPortal(
+        <div className="overlay" onClick={() => setSelectedDetailUser(null)}>
+          <div className="tx-actions" onClick={e => e.stopPropagation()} style={{padding: '32px 24px'}}>
+            <h3 style={{marginBottom: 20, fontSize: 20, fontWeight: 800}}>Rincian dengan {selectedDetailUser.userName}</h3>
+            {(() => {
+              const iOweThem = transactions
+                .filter(t => t.peminjam_id === userId && t.pemberi_pinjaman_id === selectedDetailUser.userId && t.status === 'belum_lunas')
+                .reduce((sum, t) => sum + t.jumlah, 0);
+              const theyOweMe = transactions
+                .filter(t => t.peminjam_id === selectedDetailUser.userId && t.pemberi_pinjaman_id === userId && t.status === 'belum_lunas')
+                .reduce((sum, t) => sum + t.jumlah, 0);
+              
+              const unpaidTxs = transactions.filter(t => t.status === 'belum_lunas' && 
+                ((t.peminjam_id === userId && t.pemberi_pinjaman_id === selectedDetailUser.userId) || 
+                 (t.peminjam_id === selectedDetailUser.userId && t.pemberi_pinjaman_id === userId)));
+
+              async function handleMarkAllPaid() {
+                if (confirm(`Yakin ingin melunaskan SEMUA utang/piutang (${unpaidTxs.length} transaksi) dengan ${selectedDetailUser.userName}?`)) {
+                  const txIds = unpaidTxs.map(t => t.id);
+                  const res = await markMultipleAsPaid(txIds);
+                  if (res.error) alert(res.error);
+                  else setSelectedDetailUser(null);
+                }
+              }
+
+              return (
+                <>
+                  <div style={{display:'flex', flexDirection:'column', gap: 12, marginBottom: 24}}>
+                    <div style={{display:'flex', justifyContent:'space-between', padding: '16px', background: 'var(--bg-dark)', borderRadius: 12, border: '1px solid var(--border)'}}>
+                      <span style={{color: 'var(--text-secondary)'}}>Kamu berutang:</span>
+                      <strong style={{color: 'var(--danger)'}}>{formatRupiah(iOweThem)}</strong>
+                    </div>
+                    <div style={{display:'flex', justifyContent:'space-between', padding: '16px', background: 'var(--bg-dark)', borderRadius: 12, border: '1px solid var(--border)'}}>
+                      <span style={{color: 'var(--text-secondary)'}}>{selectedDetailUser.userName} berutang:</span>
+                      <strong style={{color: 'var(--success)'}}>{formatRupiah(theyOweMe)}</strong>
+                    </div>
+                    <div style={{display:'flex', justifyContent:'space-between', padding: '16px', background: 'var(--bg-panel)', border: '1px solid var(--border-light)', borderRadius: 12}}>
+                      <span style={{fontWeight: 700}}>Sisa (Netto):</span>
+                      <strong style={{color: selectedDetailUser.amount >= 0 ? 'var(--success)' : 'var(--danger)'}}>
+                        {selectedDetailUser.amount >= 0 ? `${selectedDetailUser.userName} bayar ke kamu ` : `Kamu bayar ke ${selectedDetailUser.userName} `}
+                        {formatRupiah(Math.abs(selectedDetailUser.amount))}
+                      </strong>
+                    </div>
+                    <p style={{fontSize: 13, color: 'var(--text-tertiary)', marginTop: 8, lineHeight: 1.5}}>
+                      *Sistem otomatis mengurangi utang timbal balik (saling potong) sehingga kamu cukup membayar atau menagih selisihnya saja.
+                    </p>
+                  </div>
+                  <button className="btn btn-success" onClick={handleMarkAllPaid} style={{marginBottom: 12, width: '100%'}}>✅ Lunas Semua ({unpaidTxs.length} Transaksi)</button>
+                  <button className="btn btn-secondary" onClick={() => setSelectedDetailUser(null)} style={{width: '100%'}}>Tutup</button>
+                </>
+              );
+            })()}
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );

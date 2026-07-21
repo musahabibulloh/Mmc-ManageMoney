@@ -7,6 +7,19 @@ export function formatRupiah(amount) {
 }
 
 /**
+ * Format angka ke Rupiah compact (contoh: Rp15rb, Rp1jt)
+ */
+export function formatCompactRupiah(amount) {
+  const abs = Math.abs(amount);
+  if (abs >= 1000000) {
+    return 'Rp' + (abs % 1000000 === 0 ? (abs / 1000000) : (abs / 1000000).toFixed(1)) + 'jt';
+  } else if (abs >= 1000) {
+    return 'Rp' + (abs % 1000 === 0 ? (abs / 1000) : (abs / 1000).toFixed(1)) + 'rb';
+  }
+  return 'Rp' + abs;
+}
+
+/**
  * Generate kode undangan unik (6 karakter)
  */
 export function generateInviteCode() {

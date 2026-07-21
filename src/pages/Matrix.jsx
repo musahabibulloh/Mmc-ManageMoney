@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useGroup } from '../context/GroupContext';
-import { buildMatrix, formatRupiah } from '../utils/balance';
+import { buildMatrix, formatCompactRupiah } from '../utils/balance';
 
 export default function Matrix() {
   const { currentGroup, members, transactions } = useGroup();
@@ -29,16 +29,16 @@ export default function Matrix() {
               <thead>
                 <tr>
                   <th className="corner">↓Pinjam<br/>→Beri</th>
-                  {memberNames.map((n, i) => <th key={i}>{n}</th>)}
+                  {memberNames.map((n, i) => <th key={i} title={n}>{n.length > 6 ? n.substring(0, 6) + '..' : n}</th>)}
                 </tr>
               </thead>
               <tbody>
                 {matrix.map((row, ri) => (
                   <tr key={ri}>
-                    <td className="row-header">{memberNames[ri]}</td>
+                    <td className="row-header" title={memberNames[ri]}>{memberNames[ri].length > 6 ? memberNames[ri].substring(0, 6) + '..' : memberNames[ri]}</td>
                     {row.map((val, ci) => (
                       <td key={ci} className={ri === ci ? 'diagonal' : val > 0 ? 'has-value' : ''}>
-                        {ri === ci ? '—' : val > 0 ? formatRupiah(val) : '—'}
+                        {ri === ci ? '—' : val > 0 ? formatCompactRupiah(val) : '—'}
                       </td>
                     ))}
                   </tr>

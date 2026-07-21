@@ -22,28 +22,33 @@ export default function Login() {
 
   return (
     <div className="auth-page">
-      <div className="auth-header">
-        <div className="logo">💰</div>
-        <h1>MMC Money</h1>
-        <p>Kelola utang-piutang<br/>dengan mudah & akurat</p>
-      </div>
-      <form onSubmit={handleSubmit}>
-        {error && <div className="toast error" style={{position:'relative',top:0,transform:'none',marginBottom:16}}>{error}</div>}
-        <div className="form-group">
-          <label>Email</label>
-          <input type="email" placeholder="nama@email.com" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" />
+      <div className="auth-left">
+        <div className="auth-box">
+          <div className="auth-header">
+            <div className="logo">💰</div>
+            <h1>Welcome Back</h1>
+            <p>Kelola utang-piutang dengan mudah & akurat</p>
+          </div>
+          <form onSubmit={handleSubmit}>
+            {error && <div className="toast error">{error}</div>}
+            <div className="form-group">
+              <label>Email</label>
+              <input type="email" placeholder="nama@email.com" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" />
+            </div>
+            <div className="form-group">
+              <label>Password</label>
+              <input type="password" placeholder="Masukkan password" value={password} onChange={e => setPassword(e.target.value)} />
+            </div>
+            <button className="btn btn-primary" disabled={loading} style={{width: '100%', marginTop: 16}}>
+              {loading ? 'Memuat...' : 'Masuk'}
+            </button>
+          </form>
+          <div className="auth-footer">
+            Belum punya akun? <Link to="/register">Daftar sekarang</Link>
+          </div>
         </div>
-        <div className="form-group">
-          <label>Password</label>
-          <input type="password" placeholder="Masukkan password" value={password} onChange={e => setPassword(e.target.value)} />
-        </div>
-        <button className="btn btn-primary" disabled={loading} style={{marginTop:8}}>
-          {loading ? 'Memuat...' : 'Masuk'}
-        </button>
-      </form>
-      <div className="auth-footer">
-        Belum punya akun? <Link to="/register">Daftar</Link>
       </div>
+      <div className="auth-right"></div>
     </div>
   );
 }

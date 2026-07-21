@@ -73,6 +73,14 @@ export function GroupProvider({ children }) {
     return {};
   }, []);
 
+  const markMultipleAsPaid = useCallback(async (txIds) => {
+    if (!txIds || txIds.length === 0) return {};
+    const { error } = await supabase.from('transactions').update({ status: 'lunas' }).in('id', txIds);
+    if (error) return { error: error.message };
+    setTransactions(prev => prev.map(t => txIds.includes(t.id) ? { ...t, status: 'lunas' } : t));
+    return {};
+  }, []);
+
   const deleteTransaction = useCallback(async (id) => {
     const { error } = await supabase.from('transactions').delete().eq('id', id);
     if (error) return { error: error.message };
@@ -84,7 +92,7 @@ export function GroupProvider({ children }) {
     <GroupContext.Provider value={{
       currentGroup, groups, members, transactions, loading,
       fetchGroups, createGroup, joinGroup, selectGroup,
-      addTransaction, markAsPaid, deleteTransaction,
+      addTransaction, markAsPaid, markMultipleAsPaid, deleteTransaction,
       fetchMembers, fetchTransactions,
     }}>
       {children}

@@ -28,36 +28,41 @@ export default function Register() {
 
   return (
     <div className="auth-page">
-      <div className="auth-header">
-        <div className="logo">✨</div>
-        <h1>Buat Akun Baru</h1>
-        <p>Daftar untuk mulai mencatat utang-piutang</p>
+      <div className="auth-left">
+        <div className="auth-box">
+          <div className="auth-header">
+            <div className="logo">✨</div>
+            <h1>Buat Akun Baru</h1>
+            <p>Daftar untuk mulai mencatat utang-piutang</p>
+          </div>
+          <form onSubmit={handleSubmit}>
+            {error && <div className="toast error">{error}</div>}
+            <div className="form-group">
+              <label>Nama Panggilan</label>
+              <input type="text" placeholder="Nama kamu" value={nama} onChange={e => setNama(e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>Email</label>
+              <input type="email" placeholder="nama@email.com" value={email} onChange={e => setEmail(e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>Password</label>
+              <input type="password" placeholder="Minimal 6 karakter" value={password} onChange={e => setPassword(e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>Konfirmasi Password</label>
+              <input type="password" placeholder="Ulangi password" value={confirm} onChange={e => setConfirm(e.target.value)} />
+            </div>
+            <button className="btn btn-primary" disabled={loading} style={{width: '100%', marginTop: 16}}>
+              {loading ? 'Memuat...' : 'Daftar Sekarang'}
+            </button>
+          </form>
+          <div className="auth-footer">
+            Sudah punya akun? <Link to="/login">Masuk di sini</Link>
+          </div>
+        </div>
       </div>
-      <form onSubmit={handleSubmit}>
-        {error && <div className="toast error" style={{position:'relative',top:0,transform:'none',marginBottom:16}}>{error}</div>}
-        <div className="form-group">
-          <label>Nama Panggilan</label>
-          <input type="text" placeholder="Nama kamu" value={nama} onChange={e => setNama(e.target.value)} />
-        </div>
-        <div className="form-group">
-          <label>Email</label>
-          <input type="email" placeholder="nama@email.com" value={email} onChange={e => setEmail(e.target.value)} />
-        </div>
-        <div className="form-group">
-          <label>Password</label>
-          <input type="password" placeholder="Minimal 6 karakter" value={password} onChange={e => setPassword(e.target.value)} />
-        </div>
-        <div className="form-group">
-          <label>Konfirmasi Password</label>
-          <input type="password" placeholder="Ulangi password" value={confirm} onChange={e => setConfirm(e.target.value)} />
-        </div>
-        <button className="btn btn-primary" disabled={loading} style={{marginTop:8}}>
-          {loading ? 'Memuat...' : 'Daftar'}
-        </button>
-      </form>
-      <div className="auth-footer">
-        Sudah punya akun? <Link to="/login">Masuk</Link>
-      </div>
+      <div className="auth-right"></div>
     </div>
   );
 }
