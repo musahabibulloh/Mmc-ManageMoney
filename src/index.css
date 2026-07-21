@@ -228,6 +228,36 @@ body {
   box-shadow: 0 0 0 4px var(--primary-bg);
 }
 
+.member-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+.member-chip {
+  padding: 12px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+}
+.member-chip:hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+.member-chip.selected {
+  background: var(--primary-gradient);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: var(--glow-primary);
+  transform: translateY(-2px);
+}
+
 /* =========================================
    DASHBOARD / HOME SPECIFIC
 ========================================= */
