@@ -7,9 +7,10 @@ import { calculatePairBalances, calculateNetBalanceForUser, calculateTotals, for
 
 export default function Home() {
   const { session, profile } = useAuth();
-  const { currentGroup, groups, members, transactions, fetchGroups, selectGroup, loading, markMultipleAsPaid } = useGroup();
+  const { currentGroup, groups, members, transactions, fetchGroups, selectGroup, loading, markMultipleAsPaid, kickMember } = useGroup();
   const userId = session?.user?.id;
   const [selectedDetailUser, setSelectedDetailUser] = useState(null);
+  const [showMembersModal, setShowMembersModal] = useState(false);
 
   useEffect(() => { if (userId) fetchGroups(userId); }, [userId]);
   useEffect(() => { if (!currentGroup && groups.length > 0) selectGroup(groups[0]); }, [groups, currentGroup]);
@@ -55,7 +56,7 @@ export default function Home() {
             {groups.length > 1 && <span className="switch-hint" style={{marginLeft:8}}>▾ ganti</span>}
           </div>
         </div>
-        <div className="member-badge">
+        <div className="member-badge" onClick={(e) => { e.stopPropagation(); setShowMembersModal(true); }} style={{cursor: 'pointer'}}>
           <div className="count">{members.length}</div>
           <div className="label">Anggota</div>
         </div>
@@ -199,6 +200,54 @@ export default function Home() {
                 </>
               );
             })()}
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Modal Daftar Anggota & Admin */}
+      {showMembersModal && createPortal(
+        <div className="overlay" onClick={() => setShowMembersModal(false)}>
+          <div className="tx-actions" onClick={e => e.stopPropagation()} style={{padding: '32px 24px'}}>
+            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom: 20}}>
+              <h3 style={{fontSize: 20, fontWeight: 800}}>Daftar Anggota</h3>
+              {currentGroup?.dibuat_oleh === userId && <span style={{fontSize: 12, background: 'var(--primary-bg)', color: 'var(--primary-light)', padding: '4px 8px', borderRadius: 8, fontWeight: 700}}>👑 Admin</span>}
+            </div>
+            
+            <div style={{display:'flex', flexDirection:'column', gap: 12, marginBottom: 24, maxHeight: '50vh', overflowY: 'auto'}}>
+              {members.map(m => (
+                <div key={m.id} style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding: '16px', background: 'var(--bg-dark)', borderRadius: 12, border: '1px solid var(--border)'}}>
+                  <div style={{display:'flex', alignItems:'center', gap: 12}}>
+                    <div className="detail-avatar" style={{width: 36, height: 36, fontSize: 16, background: 'var(--surface-hover)'}}>
+                      {m.nama.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <div style={{fontWeight: 600, color: 'var(--text-primary)'}}>{m.id === userId ? `${m.nama} (Kamu)` : m.nama}</div>
+                      {currentGroup?.dibuat_oleh === m.id && <div style={{fontSize: 11, color: 'var(--text-tertiary)'}}>Pembuat Grup</div>}
+                    </div>
+                  </div>
+                  
+                  {currentGroup?.dibuat_oleh === userId && m.id !== userId && (
+                    <button 
+                      onClick={async () => {
+                        if (confirm(`Yakin ingin mengeluarkan ${m.nama} dari grup? (Transaksi sebelumnya tidak akan terhapus)`)) {
+                          const res = await kickMember(currentGroup.id, m.id);
+                          if (res.error) alert(res.error);
+                        }
+                      }}
+                      style={{
+                        background: 'transparent', border: '1px solid var(--danger)', color: 'var(--danger)', 
+                        padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer'
+                      }}
+                    >
+                      Keluarkan
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <button className="btn btn-secondary" onClick={() => setShowMembersModal(false)} style={{width: '100%'}}>Tutup</button>
           </div>
         </div>,
         document.body

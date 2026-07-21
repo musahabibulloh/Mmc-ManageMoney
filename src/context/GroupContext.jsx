@@ -88,11 +88,23 @@ export function GroupProvider({ children }) {
     return {};
   }, []);
 
+  const kickMember = useCallback(async (groupId, userId) => {
+    const { error, count } = await supabase.from('group_members').delete({ count: 'exact' }).eq('group_id', groupId).eq('user_id', userId);
+    
+    if (error) return { error: error.message };
+    if (count === 0) {
+      return { error: "Gagal mengeluarkan anggota. Ini terjadi karena sistem keamanan (RLS) di Supabase mencegah Anda menghapus data anggota lain. Anda harus masuk ke Dashboard Supabase > Authentication / Table Editor > group_members > Ubah RLS Policy Delete agar Admin (Pembuat Grup) diizinkan menghapus anggota." };
+    }
+    
+    await fetchMembers(groupId);
+    return {};
+  }, []);
+
   return (
     <GroupContext.Provider value={{
       currentGroup, groups, members, transactions, loading,
       fetchGroups, createGroup, joinGroup, selectGroup,
-      addTransaction, markAsPaid, markMultipleAsPaid, deleteTransaction,
+      addTransaction, markAsPaid, markMultipleAsPaid, deleteTransaction, kickMember,
       fetchMembers, fetchTransactions,
     }}>
       {children}
