@@ -7,15 +7,22 @@ import { formatRupiah } from '../utils/balance';
 
 export default function Transactions() {
   const { session } = useAuth();
-  const { currentGroup, transactions, fetchTransactions, markAsPaid, deleteTransaction } = useGroup();
+  const { currentGroup, members, transactions, fetchTransactions, markAsPaid, deleteTransaction } = useGroup();
   const userId = session?.user?.id || '';
   const [filter, setFilter] = useState('semua');
+  const [memberFilter, setMemberFilter] = useState('semua');
   const [actionTx, setActionTx] = useState(null);
 
   const filtered = useMemo(() => {
-    if (filter === 'semua') return transactions;
-    return transactions.filter(t => t.status === filter);
-  }, [transactions, filter]);
+    let result = transactions;
+    if (filter !== 'semua') {
+      result = result.filter(t => t.status === filter);
+    }
+    if (memberFilter !== 'semua') {
+      result = result.filter(t => t.peminjam_id === memberFilter || t.pemberi_pinjaman_id === memberFilter);
+    }
+    return result;
+  }, [transactions, filter, memberFilter]);
 
   if (!currentGroup) {
     return <div className="page"><div className="empty-state"><div className="icon">📋</div><p>Pilih grup terlebih dahulu di halaman Ringkasan</p></div></div>;
@@ -39,7 +46,20 @@ export default function Transactions() {
 
   return (
     <div className="page">
-      <div className="page-header"><h1>📋 Transaksi</h1></div>
+      <div className="page-header" style={{marginBottom: 24}}><h1>📋 Transaksi</h1></div>
+
+      <div className="form-group" style={{marginBottom: 16}}>
+        <select 
+          value={memberFilter}
+          onChange={e => setMemberFilter(e.target.value)}
+          style={{borderRadius: 'var(--radius-full)', padding: '14px 24px'}}
+        >
+          <option value="semua">👤 Semua Orang</option>
+          {members.map(m => (
+            <option key={m.id} value={m.id}>{m.nama}</option>
+          ))}
+        </select>
+      </div>
 
       <div className="filter-bar">
         {[['semua','Semua'],['belum_lunas','🔴 Belum Lunas'],['lunas','🟢 Lunas']].map(([key, label]) => (
